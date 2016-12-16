@@ -22,9 +22,10 @@ type Devise struct {
 }
 
 type Modifiers struct {
-	Env *modifiers.Env
-	K8s *modifiers.K8s
-	AWS *modifiers.AWS
+	Env  *modifiers.Env
+	K8s  *modifiers.K8s
+	AWS  *modifiers.AWS
+	HTTP *modifiers.HTTP
 }
 
 type Discoverers struct {
@@ -58,10 +59,13 @@ func NewDevise(k bool) (*Devise, error) {
 
 	dns := discoverers.NewDNS()
 
+	http := modifiers.NewHTTP()
+
 	modifiers := &Modifiers{
-		Env: env,
-		K8s: k8s,
-		AWS: aws,
+		Env:  env,
+		K8s:  k8s,
+		AWS:  aws,
+		HTTP: http,
 	}
 
 	discoverers := &Discoverers{
