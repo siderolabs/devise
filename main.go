@@ -105,6 +105,24 @@ func MakeTemplates(d *Devise, p *Plan) error {
 			"inc": func(i int) int {
 				return i + 1
 			},
+			"len": func(s []string) int {
+				return len(s)
+			},
+			"divide": func(i int, j int) int {
+				return i + j
+			},
+			"multiply": func(i int, j int) int {
+				return i * j
+			},
+			"add": func(i int, j int) int {
+				return i + j
+			},
+			"subtract": func(i int, j int) int {
+				return i - j
+			},
+			"join": func(s []string, sep string) string {
+				return strings.Join(s, sep)
+			},
 			"hostname": func() (*string, error) {
 				hostname, err := os.Hostname()
 				if err != nil {
