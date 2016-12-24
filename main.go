@@ -109,7 +109,7 @@ func MakeTemplates(d *Devise, p *Plan) error {
 				return len(s)
 			},
 			"divide": func(i int, j int) int {
-				return i + j
+				return i / j
 			},
 			"multiply": func(i int, j int) int {
 				return i * j
