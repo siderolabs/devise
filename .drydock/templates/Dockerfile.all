@@ -1,0 +1,3 @@
+{{from "build" | printf "%s"}}
+{{from "test" | printf "%s"}}
+{{from "image" | printf "%s"}}

@@ -1,0 +1,15 @@
+templates:
+  example.yaml:
+    destination: /app/example.yaml
+    permissions: 0644
+
+script: |
+  #!/bin/bash
+
+  set -ex
+
+  echo "Devise"
+  cat /app/example.yaml
+  ls -l /app/example.yaml
+
+  exit 0

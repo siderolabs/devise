@@ -1,0 +1,27 @@
+sudo: required
+dist: trusty
+
+language: go
+
+go:
+  - 1.8.3
+
+env:
+  - TAG=v0.1.0-alpha.0
+
+before_install:
+  - sudo apt-get -y remove docker docker-engine
+  - sudo apt-get -y update
+  - sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) edge"
+  - sudo apt-get update
+  - sudo apt-get -y install docker-ce
+
+script:
+  - make init
+  - make
+
+after_success:
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then bash <(curl -s https://codecov.io/bash); fi
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then make push; fi

@@ -1,0 +1,17 @@
+FROM golang:1.8.3 as build
+ARG TAG
+ARG GITCOMMIT
+ARG BUILT
+WORKDIR /go/src/github.com/autonomy/devise
+RUN apt-get update
+RUN apt-get -y install bsdtar
+RUN go get github.com/golang/protobuf/protoc-gen-go
+RUN curl -L -o /bin/protoc-gen-grpc-java http://search.maven.org/remotecontent?filepath=io/grpc/protoc-gen-grpc-java/1.3.0/protoc-gen-grpc-java-1.3.0-linux-x86_64.exe \
+    && chmod +x /bin/protoc-gen-grpc-java
+RUN curl -L https://github.com/google/protobuf/releases/download/v3.3.0/protoc-3.3.0-linux-x86_64.zip | bsdtar -xf - --strip-components=1 -C /bin bin/protoc \
+    && chmod +x /bin/protoc
+COPY ./ ./
+RUN protoc -I api api/api.proto \
+      --go_out=plugins=grpc:api \
+      --plugin=protoc-gen-grpc-java=/bin/protoc-gen-grpc-java --grpc-java_out=api
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -ldflags "-X \"github.com/autonomy/devise/cli.Tag=${TAG}\" -X \"github.com/autonomy/devise/cli.GitCommit=${GITCOMMIT}\" -X \"github.com/autonomy/devise/cli.Built=${BUILT}\""

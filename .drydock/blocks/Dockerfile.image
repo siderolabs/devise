@@ -1,0 +1,8 @@
+FROM alpine:3.6 as image
+MAINTAINER Andrew Rynhard <andrew.rynhard@autonomy.io>
+RUN apk --update add bash \
+    && rm -rf /var/cache/apk/*
+WORKDIR /app
+COPY --from=build /go/src/github.com/autonomy/devise/devise .
+COPY ui ui
+ENTRYPOINT ["./devise"]

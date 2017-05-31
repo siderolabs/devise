@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_package = "io.autonomy.devise";
+option java_outer_classname = "DeviseProto";
+
+package api;
+
+// The devise service definition.
+service Devise {
+  // Sends a request for a template.
+  rpc Template (TemplateRequest) returns (TemplateReply) {}
+}
+
+// The request message containing the templated template.
+message TemplateRequest {
+  bytes template = 1;
+}
+
+// The response message containing the rendered template.
+message TemplateReply {
+  bytes rendered = 1;
+}

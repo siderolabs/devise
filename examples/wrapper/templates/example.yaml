@@ -1,0 +1,2 @@
+app: {{ "devise" | title }}
+home: {{ .Env.Get "HOME" }}
