@@ -6,9 +6,6 @@ language: go
 go:
   - 1.8.3
 
-env:
-  - TAG=v0.1.0-alpha.0
-
 before_install:
   - sudo apt-get -y remove docker docker-engine
   - sudo apt-get -y update
@@ -22,6 +19,12 @@ script:
   - make init
   - make
 
+deploy:
+  provider: script
+  script: scripts/deploy.sh $TRAVIS_TAG
+  on:
+    tags: true
+    branch: master
+
 after_success:
-  - if [ "$TRAVIS_BRANCH" == "master" ]; then bash <(curl -s https://codecov.io/bash); fi
-  - if [ "$TRAVIS_BRANCH" == "master" ]; then make push; fi
+  - bash <(curl -s https://codecov.io/bash)
