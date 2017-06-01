@@ -17,11 +17,12 @@ before_install:
 
 script:
   - make init
-  - make
+  - if [ -z ${TRAVIS_TAG} ];then make; else make TAG=${TRAVIS_TAG}; fi
 
 deploy:
   provider: script
-  script: scripts/deploy.sh $TRAVIS_TAG
+  script: scripts/deploy.sh ${TRAVIS_TAG}
+  skip_cleanup: true
   on:
     tags: true
     branch: master

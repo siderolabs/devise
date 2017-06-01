@@ -2,6 +2,4 @@
 
 set -e
 
-export TAG=$1
-
-make push
+make push TAG=$1
