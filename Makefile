@@ -1,4 +1,5 @@
 SHELL := /bin/bash
+ROOT ?= $(shell pwd)
 BUILDDEPS := \
 	github.com/golang/dep/cmd/dep \
 	github.com/autonomy/drydock
@@ -8,11 +9,12 @@ BUILT := $(shell date)
 
 NAMESPACE := autonomy
 NAME := devise
-RELEASE ?= edge
+RELEASE ?= develop
 IMAGE := ${NAMESPACE}/${NAME}:${SHA}
-IMAGE_RELEASE := ${NAMESPACE}/${NAME}:$(shell if [ "$${RELEASE}" == "edge" ]; then echo "edge"; else echo "$${RELEASE:1}"; fi)
+IMAGE_RELEASE := ${NAMESPACE}/${NAME}:$(shell if [ "$${RELEASE}" == "develop" ]; then echo "develop"; else echo "$${RELEASE:1}"; fi)
 IMAGE_LATEST := ${NAMESPACE}/${NAME}:latest
 
+IS_LATEST := $(shell if [ -z "$$(echo $${RELEASE} | grep '-')" ]; then echo "true"; else echo "false"; fi)
 
 all: clean vendor
 	@drydock build --template test -- \
@@ -21,7 +23,7 @@ all: clean vendor
 		--build-arg SHA="${SHA}" \
 		--build-arg BUILT="${BUILT}" \
 		.
-	@docker run --rm -it --volume $(shell pwd):/out ${IMAGE} cp coverage.txt /out
+	@docker run --rm -it --volume ${ROOT}:/out ${IMAGE} cp coverage.txt /out
 	@drydock build --template $@ -- \
 		--tag ${IMAGE} \
 		--build-arg RELEASE="${RELEASE}" \
@@ -76,29 +78,31 @@ api: build
 	@docker run \
 		--rm \
 		-it \
-		--volume $(shell pwd):/out \
+		--volume ${ROOT}:/out \
 		${IMAGE}-build cp -R ./api /out
 
 # TODO: docs
 
-# TODO: Verify that $RELEASE is of the format vMAJOR.MINOR.PATCH*
+# TODO: Verify that $RELEASE is a valid semantic version.
 .PHONY: push
-push:
+push: image
 ifeq (${SHA},dirty)
 	$(error The working tree is dirty, aborting ...)
 endif
 	@docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}"
-	@echo [Tagging ${IMAGE} as ${IMAGE_LATEST}]
-	@docker tag ${IMAGE} ${IMAGE_LATEST}
 	@echo [Pushing ${IMAGE}]
 	@docker push ${IMAGE}
-	@echo [Pushing ${IMAGE_LATEST}]
-	@docker push ${IMAGE_LATEST}
-ifneq (${RELEASE},edge)
+ifneq (${RELEASE},develop)
 	@echo [Tagging ${IMAGE} as ${IMAGE_RELEASE}]
 	@docker tag ${IMAGE} ${IMAGE_RELEASE}
 	@echo [Pushing ${IMAGE_RELEASE}]
 	@docker push ${IMAGE_RELEASE}
+endif
+ifeq (${IS_LATEST},true)
+	@echo [Tagging ${IMAGE} as ${IMAGE_LATEST}]
+	@docker tag ${IMAGE} ${IMAGE_LATEST}
+	@echo [Pushing ${IMAGE_LATEST}]
+	@docker push ${IMAGE_LATEST}
 endif
 
 .PHONY: run
@@ -128,7 +132,7 @@ example-wrapper: run
 	@docker run \
 		--rm \
 		-it \
-		-v $(shell pwd)/examples/wrapper:/app/plan \
+		-v ${ROOT}/examples/wrapper:/app/plan \
 		--network=host \
 		${IMAGE} implement --plan=/app/plan/plan.yaml --vault-token=${VAULT_TOKEN}
 
