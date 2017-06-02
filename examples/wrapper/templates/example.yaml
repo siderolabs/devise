@@ -1,2 +1,3 @@
 app: {{ "devise" | title }}
 home: {{ .Env.Get "HOME" }}
+hello: {{ .Vault.Secret "secret/hello" "value" }}

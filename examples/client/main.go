@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/autonomy/devise/api"
 
@@ -58,7 +59,7 @@ func newApp() (*app, error) {
 	c := api.NewDeviseClient(conn)
 
 	// Contact the server and get the rendered plan.
-	r, err := c.Template(context.Background(), &api.TemplateRequest{Template: b})
+	r, err := c.Template(context.Background(), &api.TemplateRequest{Template: b, VaultToken: os.Getenv("VAULT_TOKEN")})
 	if err != nil {
 		return nil, err
 	}

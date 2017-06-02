@@ -28,12 +28,13 @@ type Template struct {
 
 // ImplementOptions is used to configure the client.
 type ImplementOptions struct {
-	Address string
-	Plan    string
+	Address    string
+	Plan       string
+	VaultToken string
 }
 
 // renderTemplates renders templates and writes them to disk.
-func renderTemplates(templates map[string]*Template, address string) error {
+func renderTemplates(templates map[string]*Template, opts *ImplementOptions) error {
 	for template, stats := range templates {
 		templateBytes, err := ioutil.ReadFile(path.Join("./templates", template))
 		if err != nil {
@@ -41,7 +42,7 @@ func renderTemplates(templates map[string]*Template, address string) error {
 		}
 
 		// Set up a connection to the server.
-		conn, err := grpc.Dial(address, grpc.WithInsecure())
+		conn, err := grpc.Dial(opts.Address, grpc.WithInsecure())
 		if err != nil {
 			return err
 		}
@@ -49,7 +50,7 @@ func renderTemplates(templates map[string]*Template, address string) error {
 		c := api.NewDeviseClient(conn)
 
 		// Contact the server and get the rendered plan.
-		r, err := c.Template(context.Background(), &api.TemplateRequest{Template: templateBytes})
+		r, err := c.Template(context.Background(), &api.TemplateRequest{Template: templateBytes, VaultToken: opts.VaultToken})
 		if err != nil {
 			return err
 		}
@@ -100,7 +101,7 @@ func Implement(opts *ImplementOptions) error {
 	if err != nil {
 		return err
 	}
-	err = renderTemplates(plan.Templates, opts.Address)
+	err = renderTemplates(plan.Templates, opts)
 	if err != nil {
 		return err
 	}

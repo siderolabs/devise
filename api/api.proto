@@ -14,6 +14,7 @@ service Devise {
 // The request message containing the templated template.
 message TemplateRequest {
   bytes template = 1;
+  string vault_token = 2;
 }
 
 // The response message containing the rendered template.

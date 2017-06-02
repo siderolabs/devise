@@ -26,6 +26,8 @@ type Server struct {
 
 // Template implements api.DeviseServer.
 func (s *Server) Template(ctx context.Context, in *api.TemplateRequest) (*api.TemplateReply, error) {
+	s.Modifiers.Vault.Client.SetToken(in.VaultToken)
+	defer s.Modifiers.Vault.Client.ClearToken()
 	var wr bytes.Buffer
 	tmpl, err := template.New("base").Funcs(sprig.FuncMap()).Parse(string(in.Template))
 	if err != nil {
@@ -41,11 +43,11 @@ func (s *Server) Template(ctx context.Context, in *api.TemplateRequest) (*api.Te
 }
 
 // Start starts the gRPC server
-func Start(port, datastore string) {
+func Start(port, datastore, vaultAddress string) {
 	s := grpc.NewServer()
 	server := &Server{
 		Storage:   storage.New(datastore),
-		Modifiers: modifiers.NewModifiers(),
+		Modifiers: modifiers.NewModifiers(&modifiers.Options{VaultAddress: vaultAddress}),
 	}
 	// Register Devise service on gRPC server.
 	api.RegisterDeviseServer(s, server)

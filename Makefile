@@ -88,7 +88,13 @@ push:
 .PHONY: run
 run: image stop
 	@echo [Running ${IMAGE}]
-	@docker run --rm -d -p 8080:8080 -p 50000:50000 --name ${NAME} ${IMAGE} serve
+	@docker run \
+		--rm \
+		-d \
+		-p 8080:8080 \
+		-p 50000:50000 \
+		--name ${NAME} \
+		${IMAGE} serve --vault-address=${VAULT_ADDR}
 
 .PHONY: stop
 stop:
@@ -108,7 +114,7 @@ example-wrapper: run
 		-it \
 		-v $(shell pwd)/examples/wrapper:/app/plan \
 		--network=host \
-		${IMAGE} implement --plan=/app/plan/plan.yaml
+		${IMAGE} implement --plan=/app/plan/plan.yaml --vault-token=${VAULT_TOKEN}
 
 .PHONY: clean
 clean:
