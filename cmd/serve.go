@@ -19,9 +19,10 @@ import (
 )
 
 var (
-	datastore   string
-	backendPort string
-	uiPort      string
+	datastore    string
+	backendPort  string
+	uiPort       string
+	vaultAddress string
 )
 
 // serveCmd represents the serve command
@@ -31,9 +32,10 @@ var serveCmd = &cobra.Command{
 	Long:  `Serves the UI and backend services.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Start(&cli.ServeOptions{
-			Storage:     datastore,
-			BackendPort: backendPort,
-			UIPort:      uiPort,
+			Storage:      datastore,
+			BackendPort:  backendPort,
+			UIPort:       uiPort,
+			VaultAddress: vaultAddress,
 		})
 	},
 }
@@ -42,5 +44,6 @@ func init() {
 	serveCmd.Flags().StringVar(&backendPort, "backend-port", "50000", "The backend listen port")
 	serveCmd.Flags().StringVar(&uiPort, "ui-port", "8080", "The UI listen port")
 	serveCmd.Flags().StringVar(&datastore, "datastore", "memory", "The datastore used to persist data")
+	serveCmd.Flags().StringVar(&vaultAddress, "vault-address", "http://localhost:8200", "The address for Vault")
 	RootCmd.AddCommand(serveCmd)
 }

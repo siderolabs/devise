@@ -13,13 +13,14 @@ type Server struct {
 
 // ServeOptions is used to configure the server.
 type ServeOptions struct {
-	Storage     string
-	BackendPort string
-	UIPort      string
+	Storage      string
+	BackendPort  string
+	UIPort       string
+	VaultAddress string
 }
 
 // Start starts the server.
 func Start(opts *ServeOptions) {
-	go backend.Start(opts.BackendPort, opts.Storage)
+	go backend.Start(opts.BackendPort, opts.Storage, opts.VaultAddress)
 	ui.Start(opts.UIPort)
 }

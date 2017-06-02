@@ -19,8 +19,9 @@ import (
 )
 
 var (
-	address string
-	plan    string
+	address    string
+	plan       string
+	vaultToken string
 )
 
 // implementCmd represents the implement command
@@ -29,7 +30,11 @@ var implementCmd = &cobra.Command{
 	Short: "Implements the plan",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := cli.Implement(&cli.ImplementOptions{Address: address, Plan: plan})
+		err := cli.Implement(&cli.ImplementOptions{
+			Address:    address,
+			Plan:       plan,
+			VaultToken: vaultToken,
+		})
 		if err != nil {
 			return err
 		}
@@ -41,5 +46,6 @@ var implementCmd = &cobra.Command{
 func init() {
 	implementCmd.Flags().StringVar(&address, "address", "localhost:50000", "Specifies the backend address")
 	implementCmd.Flags().StringVar(&plan, "plan", "plan.yaml", "Specifies the plan to use")
+	implementCmd.Flags().StringVar(&vaultToken, "vault-token", "", "The token used to authenticate to Vault")
 	RootCmd.AddCommand(implementCmd)
 }
