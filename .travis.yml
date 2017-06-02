@@ -24,6 +24,7 @@ deploy:
   script: scripts/deploy.sh ${TRAVIS_TAG}
   skip_cleanup: true
   on:
+    tags: true
     branch: master
 
 after_success:
