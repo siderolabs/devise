@@ -10,7 +10,7 @@ NAMESPACE := autonomy
 NAME := devise
 RELEASE ?= edge
 IMAGE := ${NAMESPACE}/${NAME}:${SHA}
-IMAGE_RELEASE := ${NAMESPACE}/${NAME}:${RELEASE}
+IMAGE_RELEASE := ${NAMESPACE}/${NAME}:$(shell if [ "$${RELEASE}" == "edge" ]; then echo "edge"; else echo "$${RELEASE:1}"; fi)
 IMAGE_LATEST := ${NAMESPACE}/${NAME}:latest
 
 
@@ -84,24 +84,21 @@ api: build
 # TODO: Verify that $RELEASE is of the format vMAJOR.MINOR.PATCH*
 .PHONY: push
 push:
+ifeq (${SHA},dirty)
+	$(error The working tree is dirty, aborting ...)
+endif
+	@docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}"
 	@echo [Tagging ${IMAGE} as ${IMAGE_LATEST}]
 	@docker tag ${IMAGE} ${IMAGE_LATEST}
-	@echo [Tagging ${IMAGE} as ${IMAGE_RELEASE}]
-	@docker tag ${IMAGE} ${IMAGE_RELEASE}
-	@docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}"
-ifneq (${RELEASE},develop)
-	@echo [Pushing ${NAMESPACE}/${NAME}:$(shell echo $${RELEASE:1})]
-	@docker push ${NAMESPACE}/${NAME}:$(shell echo $${RELEASE:1})
-else
-	@echo Tag is 'develop', not pushing ...
-endif
-ifneq (${SHA},dirty)
+	@echo [Pushing ${IMAGE}]
+	@docker push ${IMAGE}
 	@echo [Pushing ${IMAGE_LATEST}]
 	@docker push ${IMAGE_LATEST}
-	@echo [Pushing ${IMAGE_SHA}]
-	@docker push ${IMAGE_SHA}
-else
-	@echo Git commit is 'dirty', not pushing ...
+ifneq (${RELEASE},edge)
+	@echo [Tagging ${IMAGE} as ${IMAGE_RELEASE}]
+	@docker tag ${IMAGE} ${IMAGE_RELEASE}
+	@echo [Pushing ${IMAGE_RELEASE}]
+	@docker push ${IMAGE_RELEASE}
 endif
 
 .PHONY: run
