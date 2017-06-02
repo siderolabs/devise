@@ -1,1 +1,1 @@
-{{from "build" | printf "%s"}}
+{{ from "build" }}
