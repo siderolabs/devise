@@ -1,2 +1,2 @@
-{{from "build" | printf "%s"}}
-{{from "test" | printf "%s"}}
+{{ from "build" }}
+{{ from "test" }}
