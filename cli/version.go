@@ -8,26 +8,26 @@ import (
 )
 
 var (
-	// Tag is set at build time.
-	Tag string
-	// GitCommit is set at build time.
-	GitCommit string
+	// Release is set at build time.
+	Release string
+	// SHA is set at build time.
+	SHA string
 	// Built is set at build time.
 	Built string
 )
 
 const versionTemplate = `Devise:
-		Tag:         {{ .Tag | printf "%s" }}
-		Git commit:  {{ .GitCommit | printf "%s" }}
-		Built:       {{ .Built | printf "%s" }}
-		Go version:  {{ .GoVersion | printf "%s" }}
-		OS/Arch:     {{ .Os | printf "%s" }}/{{ .Arch | printf "%s" }}
+		Release:     {{ .Release }}
+		SHA:         {{ .SHA }}
+		Built:       {{ .Built }}
+		Go version:  {{ .GoVersion }}
+		OS/Arch:     {{ .Os }}/{{ .Arch }}
 `
 
 // Version contains verbose version information.
 type Version struct {
-	Tag       string
-	GitCommit string
+	Release   string
+	SHA       string
 	Built     string
 	GoVersion string
 	Os        string
@@ -37,8 +37,8 @@ type Version struct {
 // PrintLongVersion prints verbose version information.
 func PrintLongVersion() {
 	v := Version{
-		Tag:       Tag,
-		GitCommit: GitCommit,
+		Release:   Release,
+		SHA:       SHA,
 		GoVersion: runtime.Version(),
 		Os:        runtime.GOOS,
 		Arch:      runtime.GOARCH,
@@ -59,7 +59,7 @@ func PrintLongVersion() {
 	fmt.Println(wr.String())
 }
 
-// PrintShortVersion prints the tag and git commit.
+// PrintShortVersion prints the release and sha.
 func PrintShortVersion() {
-	fmt.Println(fmt.Sprintf("Devise %s-%s", Tag, GitCommit))
+	fmt.Println(fmt.Sprintf("Devise %s-%s", Release, SHA))
 }
