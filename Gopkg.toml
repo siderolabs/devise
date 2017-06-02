@@ -19,9 +19,10 @@
 ## or in a dependency.
 # ignored = ["github.com/user/project/badpkg"]
 
-## Dependencies define constraints on dependent projects. They are respected by
+## Constraints are rules for how directly imported projects
+## may be incorporated into the depgraph. They are respected by
 ## dep whether coming from the Gopkg.toml of the current project or a dependency.
-# [[dependencies]]
+# [[constraint]]
 ## Required: the root import path of the project being constrained.
 # name = "github.com/user/project"
 #
@@ -41,12 +42,12 @@
 # system1-data = "value that is used by a system"
 # system2-data = "value that is used by another system"
 
-## Overrides have the same structure as [[dependencies]], but supersede all
-## [[dependencies]] declarations from all projects. Only the current project's
-## [[overrides]] are applied.
+## Overrides have the same structure as [[constraint]], but supersede all
+## [[constraint]] declarations from all projects. Only [[override]] from
+## the current project's are applied.
 ##
 ## Overrides are a sledgehammer. Use them only as a last resort.
-# [[overrides]]
+# [[override]]
 ## Required: the root import path of the project being constrained.
 # name = "github.com/user/project"
 #
@@ -65,18 +66,46 @@
 
 
 
-[[dependencies]]
+[[constraint]]
+  name = "github.com/Masterminds/sprig"
+  version = "2.12.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/golang/protobuf"
+
+[[constraint]]
+  name = "github.com/hashicorp/vault"
+  version = "0.7.2"
+
+[[constraint]]
   branch = "master"
   name = "github.com/inconshreveable/mousetrap"
 
-[[dependencies]]
+[[constraint]]
+  name = "github.com/labstack/echo"
+  version = "3.1.0"
+
+[[constraint]]
   branch = "master"
   name = "github.com/mitchellh/go-homedir"
 
-[[dependencies]]
+[[constraint]]
   branch = "master"
   name = "github.com/spf13/cobra"
 
-[[dependencies]]
+[[constraint]]
   branch = "master"
   name = "github.com/spf13/viper"
+
+[[constraint]]
+  branch = "master"
+  name = "golang.org/x/net"
+
+[[constraint]]
+  branch = "master"
+  name = "google.golang.org/grpc"
+
+[[constraint]]
+  branch = "v2"
+  name = "gopkg.in/yaml.v2"

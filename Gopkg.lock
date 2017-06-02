@@ -16,8 +16,8 @@
 [[projects]]
   name = "github.com/aokoli/goutils"
   packages = ["."]
-  revision = "45307ec16e3cd47cd841506c081f7afd8237d210"
-  version = "1.0.0"
+  revision = "3391d3790d23d03408670993e957e8f408993c34"
+  version = "v1.0.1"
 
 [[projects]]
   name = "github.com/dgrijalva/jwt-go"
@@ -29,7 +29,7 @@
   name = "github.com/fatih/structs"
   packages = ["."]
   revision = "a720dfa8df582c51dee1b36feabb906bde1588bd"
-  version = "v1.0"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -215,13 +215,13 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["acme","acme/autocert","pbkdf2","scrypt"]
-  revision = "7e9105388ebff089b3f99f0ef676ea55a6da3a7e"
+  revision = "e1a4589e7d3ea14a3352255d04b6f1a418845e5e"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context","http2","http2/hpack","idna","internal/timeseries","lex/httplex","trace"]
-  revision = "48359f4f600b3a2d5cf657458e3f940021631a56"
+  revision = "da118f7b8e5954f39d0d2130ab35d4bf0e3cb344"
 
 [[projects]]
   branch = "master"
@@ -242,10 +242,10 @@
   revision = "d80a6e20e776b0b17a324d0ba1ab50a39c8e8944"
 
 [[projects]]
+  branch = "master"
   name = "google.golang.org/grpc"
   packages = [".","codes","credentials","grpclb/grpc_lb_v1","grpclog","internal","keepalive","metadata","naming","peer","reflection","reflection/grpc_reflection_v1alpha","stats","status","tap","transport"]
-  revision = "d2e1b51f33ff8c5e4a15560ff049d200e83726c5"
-  version = "v1.3.0"
+  revision = "2739967807cc0e3199513569f58fda34252ad65e"
 
 [[projects]]
   branch = "v2"
@@ -256,6 +256,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7815974ec1ef09a0dc6a7e4fc37f4542808b2f58c6c0d881c34c5df603a5e878"
+  inputs-digest = "f5510f9e949e6fdcd86f8e2f49b9f5ac4289ddd722a7250fa8158e2e7b673de2"
   solver-name = "gps-cdcl"
   solver-version = 1

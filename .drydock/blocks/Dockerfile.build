@@ -1,6 +1,6 @@
 FROM golang:1.8.3 as build
-ARG TAG
-ARG GITCOMMIT
+ARG RELEASE
+ARG SHA
 ARG BUILT
 WORKDIR /go/src/github.com/autonomy/devise
 RUN apt-get update
@@ -14,4 +14,4 @@ COPY ./ ./
 RUN protoc -I api api/api.proto \
       --go_out=plugins=grpc:api \
       --plugin=protoc-gen-grpc-java=/bin/protoc-gen-grpc-java --grpc-java_out=api
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -ldflags "-X \"github.com/autonomy/devise/cli.Tag=${TAG}\" -X \"github.com/autonomy/devise/cli.GitCommit=${GITCOMMIT}\" -X \"github.com/autonomy/devise/cli.Built=${BUILT}\""
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -ldflags "-X \"github.com/autonomy/devise/cli.Release=${RELEASE}\" -X \"github.com/autonomy/devise/cli.SHA=${SHA}\" -X \"github.com/autonomy/devise/cli.Built=${BUILT}\""
