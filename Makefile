@@ -71,7 +71,11 @@ image: vendor
 .PHONY: api
 api: build
 	@echo [Generating API]
-	@docker run --rm -it --volume $(shell pwd):/out ${IMAGE}-build cp -R ./api /out
+	@docker run \
+		--rm \
+		-it \
+		--volume $(shell pwd):/out \
+		${IMAGE}-build cp -R ./api /out
 
 # TODO: docs
 
@@ -99,7 +103,12 @@ example-client: run
 .PHONY: example-wrapper
 example-wrapper: run
 	@echo [Running example wrapper]
-	@docker run --rm -it -v $(shell pwd)/examples/wrapper:/app/plan autonomy/devise:v0.1.0-alpha.0 implement --address=$(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' devise):50000 --plan=/app/plan/plan.yaml
+	@docker run \
+		--rm \
+		-it \
+		-v $(shell pwd)/examples/wrapper:/app/plan \
+		--network=host \
+		${IMAGE} implement --plan=/app/plan/plan.yaml
 
 .PHONY: clean
 clean:
