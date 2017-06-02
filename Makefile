@@ -14,7 +14,8 @@ IMAGE := ${NAMESPACE}/${NAME}:${SHA}
 IMAGE_RELEASE := ${NAMESPACE}/${NAME}:$(shell if [ "$${RELEASE}" == "develop" ]; then echo "develop"; else echo "$${RELEASE:1}"; fi)
 IMAGE_LATEST := ${NAMESPACE}/${NAME}:latest
 
-IS_LATEST := $(shell if [ -z "$$(echo $${RELEASE} | grep '-')" ]; then echo "true"; else echo "false"; fi)
+
+IS_LATEST := $(shell if [ -z "$$(echo $${RELEASE} | grep -v '-')" ] && [ "$${RELEASE}" != "develop" ]; then echo "false"; else echo "true"; fi)
 
 all: clean vendor
 	@drydock build --template test -- \
