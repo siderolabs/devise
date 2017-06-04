@@ -36,12 +36,12 @@ func home(c echo.Context) error {
 func Start(port string) {
 	e := echo.New()
 	t := &Template{
-		templates: template.Must(template.ParseGlob("ui/templates/*.html")),
+		templates: template.Must(template.ParseGlob("assets/templates/*.html")),
 	}
 	e.Renderer = t
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Static("/", "./ui")
+	e.Static("/", "./assets")
 	e.GET("/", home)
 	e.GET("/healthz", healthz)
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", port)))

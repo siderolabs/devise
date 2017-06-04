@@ -14,7 +14,7 @@
 package cmd
 
 import (
-	"github.com/autonomy/devise/cli"
+	"github.com/autonomy/devise/devise"
 	"github.com/spf13/cobra"
 )
 
@@ -31,7 +31,7 @@ var serveCmd = &cobra.Command{
 	Short: "Starts the server",
 	Long:  `Serves the UI and backend services.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Start(&cli.ServeOptions{
+		devise.Start(&devise.ServeOptions{
 			Storage:      datastore,
 			BackendPort:  backendPort,
 			UIPort:       uiPort,

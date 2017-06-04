@@ -14,7 +14,7 @@
 package cmd
 
 import (
-	"github.com/autonomy/devise/cli"
+	"github.com/autonomy/devise/devise"
 	"github.com/spf13/cobra"
 )
 
@@ -29,9 +29,9 @@ var versionCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		if shortVersion {
-			cli.PrintShortVersion()
+			devise.PrintShortVersion()
 		} else {
-			cli.PrintLongVersion()
+			devise.PrintLongVersion()
 		}
 	},
 }

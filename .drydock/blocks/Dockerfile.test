@@ -1,6 +1,0 @@
-FROM golang:1.8.3 as test
-MAINTAINER Andrew Rynhard <andrew.rynhard@autonomy.io>
-WORKDIR /go/src/github.com/autonomy/devise
-RUN go get -u github.com/golang/lint/golint
-COPY --from=build /go/src/github.com/autonomy/devise .
-RUN chmod +x ./scripts/test.sh; sync; ./scripts/test.sh

@@ -1,9 +1,9 @@
-package cli
+package devise
 
 import (
-	"github.com/autonomy/devise/cli/backend"
-	"github.com/autonomy/devise/cli/ui"
-	"github.com/autonomy/devise/storage/datastore"
+	"github.com/autonomy/devise/devise/backend"
+	"github.com/autonomy/devise/devise/storage/datastore"
+	"github.com/autonomy/devise/devise/ui"
 )
 
 // Server represents the Devise server.

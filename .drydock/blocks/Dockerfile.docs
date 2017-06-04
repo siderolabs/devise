@@ -1,6 +1,0 @@
-FROM golang:1.8.3
-MAINTAINER Andrew Rynhard <andrew.rynhard@autonomy.io>
-COPY --from=build /go/src/github.com/autonomy/devise/devise .
-RUN go get github.com/spf13/hugo
-RUN hugo --source docs/source
-ENTRYPOINT ["./devise"]

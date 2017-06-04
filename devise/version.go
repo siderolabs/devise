@@ -1,4 +1,4 @@
-package cli
+package devise
 
 import (
 	"bytes"
@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	// Release is set at build time.
-	Release string
+	// Tag is set at build time.
+	Tag string
 	// SHA is set at build time.
 	SHA string
 	// Built is set at build time.
@@ -17,16 +17,16 @@ var (
 )
 
 const versionTemplate = `Devise:
-		Release:     {{ .Release }}
-		SHA:         {{ .SHA }}
-		Built:       {{ .Built }}
-		Go version:  {{ .GoVersion }}
-		OS/Arch:     {{ .Os }}/{{ .Arch }}
+	Tag:         {{ .Tag }}
+	SHA:         {{ .SHA }}
+	Built:       {{ .Built }}
+	Go version:  {{ .GoVersion }}
+	OS/Arch:     {{ .Os }}/{{ .Arch }}
 `
 
 // Version contains verbose version information.
 type Version struct {
-	Release   string
+	Tag       string
 	SHA       string
 	Built     string
 	GoVersion string
@@ -37,7 +37,7 @@ type Version struct {
 // PrintLongVersion prints verbose version information.
 func PrintLongVersion() {
 	v := Version{
-		Release:   Release,
+		Tag:       Tag,
 		SHA:       SHA,
 		GoVersion: runtime.Version(),
 		Os:        runtime.GOOS,
@@ -59,7 +59,7 @@ func PrintLongVersion() {
 	fmt.Println(wr.String())
 }
 
-// PrintShortVersion prints the release and sha.
+// PrintShortVersion prints the tag and sha.
 func PrintShortVersion() {
-	fmt.Println(fmt.Sprintf("Devise %s-%s", Release, SHA))
+	fmt.Println(fmt.Sprintf("Devise %s-%s", Tag, SHA))
 }
