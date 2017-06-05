@@ -11,7 +11,7 @@ type Memory struct {
 
 // New instantiates and returns a datastore.Datastore.
 func New() datastore.Datastore {
-	return Memory{store: make(map[string][]byte, 0)}
+	return Memory{store: make(map[string][]byte)}
 }
 
 // Get implements datastore.Datastore.

@@ -29,17 +29,14 @@ var implementCmd = &cobra.Command{
 	Use:   "implement",
 	Short: "Implements the plan",
 	Long:  ``,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		err := devise.Implement(&devise.ImplementOptions{
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
+		err = devise.Implement(&devise.ImplementOptions{
 			Address:    address,
 			Plan:       plan,
 			VaultToken: vaultToken,
 		})
-		if err != nil {
-			return err
-		}
 
-		return nil
+		return
 	},
 }
 

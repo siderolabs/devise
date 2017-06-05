@@ -15,6 +15,13 @@ scripts:
       go get $b
     done
 
+  generate_api: |
+    #!/bin/bash
+
+    set -e
+
+    docker run --rm -i --volume $(pwd):/out ${CONFORM_IMAGE} protoc -I api api/api.proto --go_out=plugins=grpc:/out/api --plugin=protoc-gen-grpc-java=/bin/protoc-gen-grpc-java --grpc-java_out=/out/api
+
   cp_coverage_report: |
     #!/bin/bash
 
@@ -41,8 +48,8 @@ scripts:
     docker push ${CONFORM_IMAGE}
 
     if [ ${CONFORM_IS_TAG} == "true" ]; then
-      docker tag ${CONFORM_IMAGE} autonomy/devise:${CONFORM_TAG}
-      docker push autonomy/devise:${CONFORM_TAG}
+      docker tag ${CONFORM_IMAGE} autonomy/devise:${CONFORM_TAG:1}
+      docker push autonomy/devise:${CONFORM_TAG:1}
       if [ ${CONFORM_PRERELEASE} == "" ]; then
         docker tag ${CONFORM_IMAGE} autonomy/devise:latest
         docker push autonomy/devise:latest
@@ -77,7 +84,8 @@ templates:
   test: |
     FROM golang:1.8.3 as test
     WORKDIR /go/src/github.com/autonomy/devise
-    RUN go get -u github.com/golang/lint/golint
+    RUN go get -u gopkg.in/alecthomas/gometalinter.v1
+    RUN gometalinter.v1 --install
     COPY --from=build /go/src/github.com/autonomy/devise .
     RUN chmod +x ./scripts/test.sh; sync; ./scripts/test.sh
   image: |
@@ -94,6 +102,8 @@ rules:
   build:
     templates:
       - build
+    after:
+      - generate_api
 
   test:
     before:

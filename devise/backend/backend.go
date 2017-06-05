@@ -57,5 +57,10 @@ func Start(port, datastore, vaultAddress string) {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	go s.Serve(lis)
+	go func() {
+		err = s.Serve(lis)
+		if err != nil {
+			return
+		}
+	}()
 }

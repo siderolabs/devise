@@ -46,7 +46,13 @@ func renderTemplates(templates map[string]*Template, opts *ImplementOptions) err
 		if err != nil {
 			return err
 		}
-		defer conn.Close()
+		defer func() {
+			err = conn.Close()
+			if err != nil {
+				return
+			}
+		}()
+
 		c := api.NewDeviseClient(conn)
 
 		// Contact the server and get the rendered plan.
@@ -69,46 +75,46 @@ func renderTemplates(templates map[string]*Template, opts *ImplementOptions) err
 }
 
 // executeScript executes the plan's script.
-func executeScript(script *string) error {
+func executeScript(script *string) (err error) {
 	if script != nil {
 		command := exec.Command("bash", "-c", *script)
 		command.Stdout = os.Stdout
 		command.Stderr = os.Stderr
-		command.Start()
-		err := command.Wait()
-		if err != nil {
-			return err
+		if err = command.Start(); err != nil {
+			return
+		}
+		if err = command.Wait(); err != nil {
+			return
 		}
 	}
 
-	return nil
+	return
 }
 
 // Implement executes the plan.
-func Implement(opts *ImplementOptions) error {
+func Implement(opts *ImplementOptions) (err error) {
 	absFilepath, err := filepath.Abs(opts.Plan)
 	if err != nil {
-		return err
+		return
 	}
 	dir := filepath.Dir(absFilepath)
-	os.Chdir(dir)
+	if err = os.Chdir(dir); err != nil {
+		return
+	}
 	data, err := ioutil.ReadFile(opts.Plan)
 	if err != nil {
-		return err
+		return
 	}
 	plan := &Plan{}
-	err = yaml.Unmarshal([]byte(data), plan)
-	if err != nil {
-		return err
+	if err = yaml.Unmarshal(data, plan); err != nil {
+		return
 	}
-	err = renderTemplates(plan.Templates, opts)
-	if err != nil {
-		return err
+	if err = renderTemplates(plan.Templates, opts); err != nil {
+		return
 	}
-	err = executeScript(plan.Script)
-	if err != nil {
-		return err
+	if err = executeScript(plan.Script); err != nil {
+		return
 	}
 
-	return nil
+	return
 }
