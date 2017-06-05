@@ -1,8 +1,8 @@
 package storage
 
 import (
-	"github.com/autonomy/devise/storage/datastore"
-	"github.com/autonomy/devise/storage/datastore/memory"
+	"github.com/autonomy/devise/devise/storage/datastore"
+	"github.com/autonomy/devise/devise/storage/datastore/memory"
 )
 
 var datastores = map[string]func() datastore.Datastore{

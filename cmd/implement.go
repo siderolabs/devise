@@ -14,7 +14,7 @@
 package cmd
 
 import (
-	"github.com/autonomy/devise/cli"
+	"github.com/autonomy/devise/devise"
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +30,7 @@ var implementCmd = &cobra.Command{
 	Short: "Implements the plan",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := cli.Implement(&cli.ImplementOptions{
+		err := devise.Implement(&devise.ImplementOptions{
 			Address:    address,
 			Plan:       plan,
 			VaultToken: vaultToken,

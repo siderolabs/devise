@@ -41,16 +41,16 @@ For an example on how a client might use Devise, see the [example client](https:
 
 Devloping Devise
 ----------------
-To install the binaries required to build Devise:
+The build of Devise depends on [conform](https://github.com/autonomy/conform):
 ```sh
-$ make init
+$ go get -u github.com/autonomy/conform
 ```
+> **Note:** Conform leverages [multi-stage builds](https://docs.docker.com/engine/userguide/eng-image/multistage-build/). Docker 17.05.0 or greater is required.
 
 To build the image, run:
 ```sh
-$ make
+$ conform enforce image
 ```
-> **Note:** The Makefile leverages [multi-stage builds](https://docs.docker.com/engine/userguide/eng-image/multistage-build/) via [Dry Dock](https://github.com/autonomy/drydock). Docker 17.05.0 or greater is required.
 
 ### License
 [![license](https://img.shields.io/github/license/autonomy/devise.svg?style=flat-square)](https://github.com/autonomy/devise/blob/master/LICENSE)

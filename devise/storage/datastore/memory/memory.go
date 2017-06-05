@@ -1,7 +1,7 @@
 package memory
 
 import (
-	"github.com/autonomy/devise/storage/datastore"
+	"github.com/autonomy/devise/devise/storage/datastore"
 )
 
 // Memory represents a datastore

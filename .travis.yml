@@ -1,12 +1,18 @@
 sudo: required
 dist: trusty
 
-language: go
+language: generic
 
-go:
-  - 1.8.3
-
-before_install:
+install:
+  - mkdir -p $HOME/goroot
+  - curl -L https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz | tar -xz --strip-components=1 -C $HOME/goroot
+  - export GOROOT=$HOME/goroot
+  - export GOPATH=$HOME/gopath
+  - export PATH=$GOROOT/bin:$GOPATH/bin:$PATH
+  - mkdir -p $GOPATH/src/github.com/autonomy/devise
+  - rsync -az ${TRAVIS_BUILD_DIR}/ $GOPATH/src/github.com/autonomy/devise/
+  - export TRAVIS_BUILD_DIR=$GOPATH/src/github.com/autonomy/devise
+  - cd $GOPATH/src/github.com/autonomy/devise
   - sudo apt-get -y remove docker docker-engine
   - sudo apt-get -y update
   - sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common
@@ -14,18 +20,18 @@ before_install:
   - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) edge"
   - sudo apt-get update
   - sudo apt-get -y install docker-ce
+  - go get github.com/autonomy/conform
 
 script:
-  - make init
-  - if [ -z ${TRAVIS_TAG} ];then make; else make RELEASE=${TRAVIS_TAG}; fi
-
-deploy:
-  provider: script
-  script: scripts/deploy.sh ${TRAVIS_TAG}
-  skip_cleanup: true
-  on:
-    tags: true
-    branch: master
+  - conform enforce test
+  - conform enforce image
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+deploy:
+  provider: script
+  script: chmod +x scripts/deploy.sh && scripts/deploy.sh
+  skip_cleanup: true
+  on:
+    condition: $TRAVIS_BRANCH == "master" || -n $TRAVIS_TAG

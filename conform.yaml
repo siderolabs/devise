@@ -1,0 +1,119 @@
+metadata:
+  repository: autonomy/devise
+
+default: image
+
+scripts:
+  init : |
+    #!/bin/bash
+
+    set -e
+
+    BUILDDEPS=( github.com/golang/dep/cmd/dep )
+    for b in  ${BUILDDEPS[@]}; do
+      echo "Installing $b"
+      go get $b
+    done
+
+  cp_coverage_report: |
+    #!/bin/bash
+
+    set -e
+
+    docker run --rm -i --volume $(pwd):/out ${CONFORM_IMAGE} cp coverage.txt /out
+
+    if [ ! -f coverage.txt ]; then
+      echo "No coverage report found."
+      exit 1
+    fi
+
+  deploy: |
+    #!/bin/bash
+
+    set -e
+
+    if [ ${CONFORM_IS_DIRTY} == "true" ]; then
+      echo "The working tree is dirty."
+      exit 1
+    fi
+
+    docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}"
+    docker push ${CONFORM_IMAGE}
+
+    if [ ${CONFORM_IS_TAG} == "true" ]; then
+      docker tag ${CONFORM_IMAGE} autonomy/devise:${CONFORM_TAG}
+      docker push autonomy/devise:${CONFORM_TAG}
+      if [ ${CONFORM_PRERELEASE} == "" ]; then
+        docker tag ${CONFORM_IMAGE} autonomy/devise:latest
+        docker push autonomy/devise:latest
+      fi
+    fi
+
+  clean: |
+    #!/bin/bash
+
+    set -e
+
+    cat .gitignore | while read line; do rm -rf "$line"; done
+    dep ensure
+    dep prune
+
+templates:
+  build: |
+    FROM golang:1.8.3 as build
+    WORKDIR /go/src/github.com/autonomy/devise
+    RUN apt-get update
+    RUN apt-get -y install bsdtar
+    RUN go get github.com/golang/protobuf/protoc-gen-go
+    RUN curl -L -o /bin/protoc-gen-grpc-java http://search.maven.org/remotecontent?filepath=io/grpc/protoc-gen-grpc-java/1.3.0/protoc-gen-grpc-java-1.3.0-linux-x86_64.exe \
+        && chmod +x /bin/protoc-gen-grpc-java
+    RUN curl -L https://github.com/google/protobuf/releases/download/v3.3.0/protoc-3.3.0-linux-x86_64.zip | bsdtar -xf - --strip-components=1 -C /bin bin/protoc \
+        && chmod +x /bin/protoc
+    COPY ./ ./
+    RUN protoc -I api api/api.proto \
+          --go_out=plugins=grpc:api \
+          --plugin=protoc-gen-grpc-java=/bin/protoc-gen-grpc-java --grpc-java_out=api
+    RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o /devise -a -ldflags "-X \"github.com/autonomy/devise/devise.Tag={{ trimAll "v" .GitInfo.Tag }}\" -X \"github.com/autonomy/devise/devise.SHA={{ .GitInfo.SHA }}\" -X \"github.com/autonomy/devise/devise.Built={{ .Built }}\""
+  test: |
+    FROM golang:1.8.3 as test
+    WORKDIR /go/src/github.com/autonomy/devise
+    RUN go get -u github.com/golang/lint/golint
+    COPY --from=build /go/src/github.com/autonomy/devise .
+    RUN chmod +x ./scripts/test.sh; sync; ./scripts/test.sh
+  image: |
+    FROM alpine:3.6 as image
+    MAINTAINER Andrew Rynhard <andrew.rynhard@autonomy.io>
+    RUN apk --update add bash \
+        && rm -rf /var/cache/apk/*
+    WORKDIR /app
+    COPY --from=build /devise .
+    COPY devise/ui/assets assets
+    ENTRYPOINT ["./devise"]
+
+rules:
+  build:
+    templates:
+      - build
+
+  test:
+    before:
+      - init
+      - clean
+    templates:
+      - build
+      - test
+    after:
+      - cp_coverage_report
+
+  image:
+    templates:
+      - build
+      - image
+
+  deploy:
+    templates:
+      - build
+      - test
+      - image
+    after:
+      - deploy

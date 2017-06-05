@@ -3,18 +3,18 @@ package backend
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"log"
 	"net"
+	"text/template"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
 	"github.com/Masterminds/sprig"
 	"github.com/autonomy/devise/api"
-	"github.com/autonomy/devise/cli/backend/modifiers"
-	"github.com/autonomy/devise/storage"
-	"github.com/autonomy/devise/storage/datastore"
+	"github.com/autonomy/devise/devise/backend/modifiers"
+	"github.com/autonomy/devise/devise/storage"
+	"github.com/autonomy/devise/devise/storage/datastore"
 	"golang.org/x/net/context"
 )
 
@@ -29,7 +29,7 @@ func (s *Server) Template(ctx context.Context, in *api.TemplateRequest) (*api.Te
 	s.Modifiers.Vault.Client.SetToken(in.VaultToken)
 	defer s.Modifiers.Vault.Client.ClearToken()
 	var wr bytes.Buffer
-	tmpl, err := template.New("base").Funcs(sprig.FuncMap()).Parse(string(in.Template))
+	tmpl, err := template.New("base").Funcs(sprig.TxtFuncMap()).Parse(string(in.Template))
 	if err != nil {
 		return nil, err
 	}
