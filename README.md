@@ -39,7 +39,7 @@ $ docker run \
 For an example on how a client might use Devise, see the [example client](https://github.com/autonomy/devise/tree/master/examples/client).
 > **Note:** The default storage for Devise is an in-memory datastore. It is intended for development. Production deployments should make use of a production quality datastore.
 
-Devloping Devise
+Developing Devise
 ----------------
 The build of Devise depends on [conform](https://github.com/autonomy/conform):
 ```sh

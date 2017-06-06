@@ -23,6 +23,7 @@ install:
   - go get github.com/autonomy/conform
 
 script:
+  - conform enforce api
   - conform enforce test
   - conform enforce image
 

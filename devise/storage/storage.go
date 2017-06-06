@@ -9,7 +9,7 @@ var datastores = map[string]func() datastore.Datastore{
 	"memory": func() datastore.Datastore { return memory.New() },
 }
 
-// New instantiates and returns a storage datastore
-func New(b string) datastore.Datastore {
+// NewDatastore instantiates and returns a storage datastore
+func NewDatastore(b string) datastore.Datastore {
 	return datastores[b]()
 }
