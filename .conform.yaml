@@ -1,0 +1,147 @@
+metadata:
+  repository: autonomy/devise
+
+policies:
+  - type: conventionalCommit
+    spec:
+      types:
+        - "chore"
+        - "docs"
+        - "perf"
+        - "refactor"
+        - "style"
+        - "test"
+      scopes:
+        - "ci"
+        - "discoverer"
+        - "modifier"
+        - "storage"
+        - "readme"
+        - "renderer"
+        - "*"
+
+script:
+  template: |
+    #!/bin/bash
+
+    set -e
+
+    # Only run if not a PR.
+    if [[ "${TRAVIS_PULL_REQUEST}" != "false" ]]; then
+      exit 0
+    fi
+
+    if [[ "${TRAVIS_BRANCH}" == "master" ]] || [[ ! -z "${TRAVIS_TAG}" ]]; then
+      # Check if working tree is clean.
+      if [[ "{{ .Git.IsClean }}" != "true" ]]; then
+        echo "The working tree is dirty."
+        exit 1
+      fi
+
+      echo "Pushing image {{ .Docker.Image }}"
+      docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}"
+      docker push {{ .Docker.Image }}
+
+      # Check if ref is a tag.
+      if [[ "{{ .Git.IsTag }}" != "true" ]]; then
+        exit 0
+      fi
+
+      # Check if the tag is a prerelease.
+      if [[ "{{ .Version.IsPrerelease }}" == "true" ]]; then
+        echo "Publishing prerelease {{ .Version.Major }}.{{ .Version.Minor }}.{{ .Version.Patch }}-{{ .Version.Prerelease }}"
+        docker tag {{ .Docker.Image }} {{ .Repository }}:{{ .Version.Major }}.{{ .Version.Minor }}.{{ .Version.Patch }}-{{ .Version.Prerelease }}
+        docker push {{ .Repository }}:{{ .Version.Major }}.{{ .Version.Minor }}.{{ .Version.Patch }}-{{ .Version.Prerelease }}
+      else
+        echo "Publishing release {{ .Version.Major }}.{{ .Version.Minor }}.{{ .Version.Patch }}"
+        docker tag {{ .Docker.Image }} {{ .Repository }}:{{ .Version.Major }}.{{ .Version.Minor }}.{{ .Version.Patch }}
+        docker push {{ .Repository }}:{{ .Version.Major }}.{{ .Version.Minor }}.{{ .Version.Patch }}
+        docker tag {{ .Docker.Image }} {{ .Repository }}:latest
+        docker push {{ .Repository }}:latest
+      fi
+    fi
+
+pipeline:
+  stages:
+    - api
+    - docs
+    - test
+    - build
+
+stages:
+  api:
+    artifacts:
+    - source: /go/src/github.com/autonomy/devise/api
+      destination: ./
+    tasks:
+      - api
+  test:
+    artifacts:
+      - source: /go/src/github.com/autonomy/devise/coverage.txt
+        destination: coverage.txt
+    tasks:
+      - test
+  docs:
+    artifacts:
+      - source: /go/src/github.com/autonomy/devise/docs
+        destination: ./
+    tasks:
+      - docs
+  build:
+    tasks:
+      - binary
+      - image
+
+tasks:
+  api:
+    template: |
+      FROM golang:1.8.3 as api
+      WORKDIR /go/src/github.com/autonomy/devise
+      RUN apt-get update
+      RUN apt-get -y install bsdtar
+      RUN go get github.com/golang/protobuf/protoc-gen-go
+      RUN curl -L -o /bin/protoc-gen-grpc-java http://search.maven.org/remotecontent?filepath=io/grpc/protoc-gen-grpc-java/1.3.0/protoc-gen-grpc-java-1.3.0-linux-x86_64.exe \
+          && chmod +x /bin/protoc-gen-grpc-java
+      RUN curl -L https://github.com/google/protobuf/releases/download/v3.3.0/protoc-3.3.0-linux-x86_64.zip | bsdtar -xf - --strip-components=1 -C /bin bin/protoc \
+          && chmod +x /bin/protoc
+      COPY ./proto ./proto
+      RUN mkdir api
+      RUN protoc -I proto proto/api.proto \
+            --go_out=plugins=grpc:api \
+            --plugin=protoc-gen-grpc-java=/bin/protoc-gen-grpc-java --grpc-java_out=api
+  test:
+    template: |
+      FROM autonomy/golang:1.8.3 as test
+      WORKDIR $GOPATH/src/github.com/{{ .Repository }}
+      COPY ./ ./
+      RUN test.sh
+  binary:
+    template: |
+      FROM golang:1.8.3 as binary
+      WORKDIR /go/src/github.com/autonomy/devise
+      COPY ./ ./
+      {{ if and .Git.IsClean .Git.IsTag }}
+      RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o /devise -a -ldflags "-X \"github.com/{{ .Repository }}/pkg.Tag={{ trimAll "v" .Git.Tag }}\" -X \"github.com/{{ .Repository }}/pkg.SHA={{ .Git.SHA }}\" -X \"github.com/{{ .Repository }}/pkg.Built={{ .Built }}\""
+      {{ else if .Git.IsClean }}
+      RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o /devise -a -ldflags "-X \"github.com/{{ .Repository }}/pkg.SHA={{ .Git.SHA }}\" -X \"github.com/{{ .Repository }}/pkg.Built={{ .Built }}\""
+      {{ else }}
+      RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o /devise
+      {{ end }}
+  docs:
+    template: |
+      FROM golang:1.8.3 as docs
+      WORKDIR /go/src/github.com/autonomy/devise
+      RUN go get -u github.com/gohugoio/hugo
+      COPY ./website ./website
+      RUN cd ./website && hugo --verbose
+      RUN echo "devise.autonomy.io" > ./docs/CNAME
+  image:
+    template: |
+      FROM alpine:3.6 as image
+      MAINTAINER Andrew Rynhard <andrew.rynhard@autonomy.io>
+      RUN apk --update add bash \
+          && rm -rf /var/cache/apk/*
+      WORKDIR /app
+      COPY --from=binary /devise .
+      COPY assets assets
+      ENTRYPOINT ["./devise"]

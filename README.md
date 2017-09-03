@@ -4,13 +4,9 @@
   <p align="center">
     <a href="https://gitter.im/autonomy/devise"><img alt="Gitter" src="https://img.shields.io/gitter/room/autonomy/devise.svg?style=flat-square"></a>
     <a href="https://godoc.org/github.com/autonomy/devise"><img alt="GoDoc" src="http://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square"></a>
-  </p>
-  <p align="center">
     <a href="https://travis-ci.org/autonomy/devise"><img alt="Travis" src="https://img.shields.io/travis/autonomy/devise.svg?style=flat-square"></a>
     <a href="https://codecov.io/gh/autonomy/devise"><img alt="Codecov" src="https://img.shields.io/codecov/c/github/autonomy/devise.svg?style=flat-square"></a>
     <a href="https://goreportcard.com/report/github.com/autonomy/devise"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/autonomy/devise?style=flat-square"></a>
-  </p>
-  <p align="center">
     <a href="https://github.com/autonomy/devise/releases/latest"><img alt="Release" src="https://img.shields.io/github/release/autonomy/devise.svg?style=flat-square"></a>
     <a href="https://github.com/autonomy/devise/releases/latest"><img alt="GitHub (pre-)release" src="https://img.shields.io/github/release/autonomy/devise/all.svg?style=flat-square"></a>
   </p>
@@ -49,7 +45,7 @@ $ go get -u github.com/autonomy/conform
 
 To build the image, run:
 ```sh
-$ conform enforce image
+$ conform enforce
 ```
 
 ### License

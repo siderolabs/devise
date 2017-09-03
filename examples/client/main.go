@@ -1,68 +1,58 @@
 package main
 
 import (
-	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
+	"net"
 	"os"
 
 	"github.com/autonomy/devise/api"
 
 	"golang.org/x/net/context"
-	"golang.org/x/net/http2"
 	"google.golang.org/grpc"
-)
-
-const (
-	address = "localhost:50000"
-	port    = ":8081"
+	"google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/reflection"
 )
 
 type app struct {
 	config []byte
 }
 
-type response map[string]interface{}
-
-func main() {
-	app, err := newApp()
-	if err != nil {
-		log.Fatalf("Failed to create app: %v", err)
-	}
-	var srv http.Server
-	http2.VerboseLogs = true
-	srv.Addr = port
-	// This enables http2 support
-	http2.ConfigureServer(&srv, nil)
-	http.HandleFunc("/config", app.templateHandler)
-	log.Fatal(srv.ListenAndServe())
-}
-
-func (app *app) templateHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response{"config": string(app.config)})
-}
-
-func newApp() (*app, error) {
+func (a *app) OpenTemplate(ctx context.Context, t *api.OpenTemplateRequest) (reply *api.OpenTemplateReply, err error) {
+	vaultToken := os.Getenv("VAULT_TOKEN")
 	b, err := ioutil.ReadFile("example.yaml")
 	if err != nil {
 		log.Printf("%v", err)
 	}
 
-	// Set up a connection to the server.
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-	c := api.NewDeviseClient(conn)
+	reply = &api.OpenTemplateReply{Template: b, VaultToken: vaultToken}
 
-	// Contact the server and get the rendered plan.
-	r, err := c.Template(context.Background(), &api.TemplateRequest{Template: b, VaultToken: os.Getenv("VAULT_TOKEN")})
+	return
+}
+
+func (a *app) RenderTemplate(ctx context.Context, t *api.RenderTemplateRequest) (reply *api.RenderTemplateReply, err error) {
+	grpclog.Printf("%v", t)
+	a.config = t.Rendered
+	reply = &api.RenderTemplateReply{Success: true}
+
+	return
+}
+
+func main() {
+	app := &app{}
+	s := grpc.NewServer()
+	// Register Devise service on gRPC server.
+	api.RegisterDeviseServer(s, app)
+	// Register reflection service on gRPC server.
+	reflection.Register(s)
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", "50000"))
 	if err != nil {
-		return nil, err
+		log.Fatalf("Failed to listen: %v", err)
 	}
 
-	return &app{config: r.Rendered}, nil
+	err = s.Serve(lis)
+	if err != nil {
+		return
+	}
 }

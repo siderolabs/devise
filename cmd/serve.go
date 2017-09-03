@@ -14,7 +14,7 @@
 package cmd
 
 import (
-	"github.com/autonomy/devise/devise"
+	"github.com/autonomy/devise/pkg"
 	"github.com/spf13/cobra"
 )
 

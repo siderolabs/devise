@@ -1,5 +1,0 @@
-baseURL = "http://devise.autonomy.io/"
-languageCode = "en-us"
-title = "Devise"
-publishDir = "../../docs"
-theme = "devise"

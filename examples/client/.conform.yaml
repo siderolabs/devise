@@ -1,0 +1,36 @@
+metadata:
+  repository: autonomy/devise
+
+script:
+  template: |
+    #!/bin/bash
+
+    set -e
+
+pipeline:
+  stages:
+    - build
+
+stages:
+  build:
+    tasks:
+      - binary
+      - image
+
+tasks:
+  binary:
+    template: |
+      FROM golang:1.8.3 as binary
+      WORKDIR /go/src/github.com/autonomy/devise
+      COPY ./ ./
+      RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o /client ./examples/client
+  image:
+    template: |
+      FROM alpine:3.6 as image
+      MAINTAINER Andrew Rynhard <andrew.rynhard@autonomy.io>
+      RUN apk --update add bash \
+          && rm -rf /var/cache/apk/*
+      WORKDIR /app
+      COPY --from=binary /client .
+      COPY ./examples/client/example.yaml ./example.yaml
+      ENTRYPOINT ["./client"]
