@@ -23,6 +23,7 @@ var (
 	backendPort  string
 	uiPort       string
 	vaultAddress string
+	discoverers  []string
 )
 
 // serveCmd represents the serve command
@@ -36,6 +37,7 @@ var serveCmd = &cobra.Command{
 			BackendPort:  backendPort,
 			UIPort:       uiPort,
 			VaultAddress: vaultAddress,
+			Discoverers:  discoverers,
 		})
 	},
 }
@@ -45,5 +47,6 @@ func init() {
 	serveCmd.Flags().StringVar(&uiPort, "ui-port", "8080", "The UI listen port")
 	serveCmd.Flags().StringVar(&datastore, "datastore", "memory", "The datastore used to persist data")
 	serveCmd.Flags().StringVar(&vaultAddress, "vault-address", "http://localhost:8200", "The address for Vault")
+	serveCmd.Flags().StringArrayVar(&discoverers, "discoverers", []string{"kubernetes"}, "The discovers")
 	RootCmd.AddCommand(serveCmd)
 }

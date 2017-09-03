@@ -1,17 +1,12 @@
 package devise
 
 import (
-	"context"
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
 
 	yaml "gopkg.in/yaml.v2"
-
-	"github.com/autonomy/devise/api"
-	"google.golang.org/grpc"
 )
 
 // Plan represents a plan.
@@ -35,41 +30,41 @@ type ImplementOptions struct {
 
 // renderTemplates renders templates and writes them to disk.
 func renderTemplates(templates map[string]*Template, opts *ImplementOptions) error {
-	for template, stats := range templates {
-		templateBytes, err := ioutil.ReadFile(path.Join("./templates", template))
-		if err != nil {
-			return err
-		}
-
-		// Set up a connection to the server.
-		conn, err := grpc.Dial(opts.Address, grpc.WithInsecure())
-		if err != nil {
-			return err
-		}
-		defer func() {
-			err = conn.Close()
-			if err != nil {
-				return
-			}
-		}()
-
-		c := api.NewDeviseClient(conn)
-
-		// Contact the server and get the rendered plan.
-		r, err := c.Template(context.Background(), &api.TemplateRequest{Template: templateBytes, VaultToken: opts.VaultToken})
-		if err != nil {
-			return err
-		}
-
-		err = os.MkdirAll(path.Dir(stats.Destination), 0755)
-		if err != nil {
-			return err
-		}
-		err = ioutil.WriteFile(stats.Destination, r.Rendered, stats.Permissions)
-		if err != nil {
-			return err
-		}
-	}
+	// for template, stats := range templates {
+	// 	templateBytes, err := ioutil.ReadFile(path.Join("./templates", template))
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	//
+	// 	// Set up a connection to the server.
+	// 	conn, err := grpc.Dial(opts.Address, grpc.WithInsecure())
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	defer func() {
+	// 		err = conn.Close()
+	// 		if err != nil {
+	// 			return
+	// 		}
+	// 	}()
+	//
+	// 	c := api.NewDeviseClient(conn)
+	//
+	// 	// Contact the server and get the rendered plan.
+	// 	r, err := c.Template(context.Background(), &api.TemplateRequest{Template: templateBytes, VaultToken: opts.VaultToken})
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	//
+	// 	err = os.MkdirAll(path.Dir(stats.Destination), 0755)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	err = ioutil.WriteFile(stats.Destination, r.Rendered, stats.Permissions)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	return nil
 }

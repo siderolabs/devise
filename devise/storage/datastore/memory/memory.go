@@ -20,7 +20,7 @@ func (m Memory) Get(k string) (*datastore.Entry, error) {
 		return &datastore.Entry{Key: k, Value: value}, nil
 	}
 
-	return &datastore.Entry{Key: k, Value: nil}, nil
+	return nil, nil
 }
 
 // Put implements datastore.Datastore.

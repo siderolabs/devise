@@ -8,16 +8,25 @@ package api;
 // The devise service definition.
 service Devise {
   // Sends a request for a template.
-  rpc Template (TemplateRequest) returns (TemplateReply) {}
+  rpc GetTemplate(TemplateRequest) returns (TemplateReply) {}
+  rpc SendRenderedTemplate(RenderRequest) returns (RenderReply) {}
 }
 
 // The request message containing the templated template.
-message TemplateRequest {
+message TemplateRequest {}
+
+// The response message containing the rendered template.
+message TemplateReply {
   bytes template = 1;
   string vault_token = 2;
 }
 
-// The response message containing the rendered template.
-message TemplateReply {
+// The request message containing the templated template.
+message RenderRequest {
   bytes rendered = 1;
+}
+
+// The response message containing the rendered template.
+message RenderReply {
+  bool success = 1;
 }
