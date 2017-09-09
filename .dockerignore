@@ -1,9 +1,12 @@
 *
 !api
+!assets
 !cmd
-!devise
 !docs
+!examples/client
 !Gopkg*
 !main.go
-!scripts
+!pkg
+!proto
 !vendor
+!website

@@ -1,0 +1,16 @@
+replicaCount: 1
+image:
+  tag: latest
+  pullPolicy: Always
+service:
+  name: devise-client-example
+  type: ClusterIP
+  externalPort: 50000
+  internalPort: 50000
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
